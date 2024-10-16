@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CardsScreen extends StatelessWidget {
-  final String folderName;
+  final int folderName;
 
   CardsScreen({required this.folderName});
   
