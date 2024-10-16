@@ -3,10 +3,10 @@ import 'cards_screen.dart';
 
 class FoldersScreen extends StatelessWidget {
   final List<Map<String, dynamic>> folders = [
-    {'name': 'Hearts', 'image': 'lib/img/10_of_hearts.png', 'cardCount': 3},
-    {'name': 'Spades', 'image': 'lib/img/10_of_spades.png', 'cardCount': 5},
-    {'name': 'Diamonds', 'image': 'lib/img/10_of_diamonds.png', 'cardCount': 6},
-    {'name': 'Clubs', 'image': 'lib/img/10_of_clubs.png', 'cardCount': 4}
+    {'name': 'Hearts', 'image': 'lib/img/10_of_hearts.png', 'cardCount': 3, 'index': 0},
+    {'name': 'Spades', 'image': 'lib/img/10_of_spades.png', 'cardCount': 5, 'index': 1},
+    {'name': 'Diamonds', 'image': 'lib/img/10_of_diamonds.png', 'cardCount': 6, 'index': 2},
+    {'name': 'Clubs', 'image': 'lib/img/10_of_clubs.png', 'cardCount': 4, 'index': 3}
   ];
 
   @override
@@ -34,7 +34,7 @@ class FoldersScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        CardsScreen(folderName: folder['name']),
+                        CardsScreen(folderIndex: folder['index']),
                   ),
                 );
               },

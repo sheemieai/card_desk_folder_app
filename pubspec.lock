@@ -274,8 +274,4 @@ packages:
     version: "14.2.5"
 sdks:
   dart: ">=3.5.2 <4.0.0"
-<<<<<<< Updated upstream
-  flutter: ">=3.18.0-18.0.pre.54"
-=======
   flutter: ">=3.24.0"
->>>>>>> Stashed changes

@@ -81,4 +81,27 @@ class DatabaseHelper {
 
     return insertCount;
   }
+
+  Future<List<Map<String, dynamic>>> getAllCardsAsMap() async {
+    final db = await instance.database;
+    final List<Map<String, dynamic>> result = await db.query("card_table");
+
+    // Map each card to desired format
+    final List<Map<String, dynamic>> cards = result.map((card) {
+      return {
+        'name': '${_formatCardName(card['card_name'])}',
+        'image': card['card_uri'],
+      };
+    }).toList();
+
+    return cards;
+  }
+
+  String _formatCardName(final String cardName) {
+    // Convert name format from "ace_of_hearts" to "Ace of Hearts"
+    return cardName.replaceAll('_', ' ').replaceFirstMapped(
+        RegExp(r'^[a-z]'),
+            (match) => match.group(0)!.toUpperCase()
+    );
+  }
 }

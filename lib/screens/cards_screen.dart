@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
+import '../db/database_utils.dart';
 
 class CardsScreen extends StatelessWidget {
-  final int folderName;
+  final int folderIndex;
 
-  CardsScreen({required this.folderName});
+  CardsScreen({required this.folderIndex});
   
   @override
   Widget build(BuildContext context) {
-    // Get the list of cards for the selected folder
-    final cards = cardsByFolder[folderName] ?? [];
+    List<Map<String, dynamic>> cards = [];
+
+    Future<List<Map<String, dynamic>>> fetchCards() async {
+      return await DatabaseHelper.instance.getAllCardsAsMap();
+    }
+
+    print(fetchCards());
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('$folderName Cards'),
+        title: Text('$fetchCards Cards'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
