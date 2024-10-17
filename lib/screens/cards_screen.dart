@@ -1,34 +1,59 @@
 import 'package:flutter/material.dart';
 import '../db/database_utils.dart';
 
-class CardsScreen extends StatelessWidget {
-  final int folderIndex;
+class CardsScreen extends StatefulWidget {
+  final String folderName;
 
-  CardsScreen({required this.folderIndex});
-  
+  CardsScreen({required this.folderName});
+
+  @override
+  _CardsScreenState createState() => _CardsScreenState();
+}
+
+class _CardsScreenState extends State<CardsScreen> {
+  List<Map<String, dynamic>> cards = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadCards();
+  }
+
+  Future<void> loadCards() async {
+    try {
+      final fetchedCards = await DatabaseHelper.instance.getCardsForFolder(
+          widget.folderName);
+      setState(() {
+        cards = fetchedCards;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error loading cards: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> cards = [];
-
-    Future<List<Map<String, dynamic>>> fetchCards() async {
-      return await DatabaseHelper.instance.getAllCardsAsMap();
-    }
-
-    print(fetchCards());
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('$fetchCards Cards'),
+        title: Text('Folder ${widget.folderName} Cards'),
       ),
-      body: Padding(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : cards.isEmpty
+          ? Center(child: Text('No cards found.'))
+          : Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // Two cards per row
+            crossAxisCount: 2,
             crossAxisSpacing: 16.0,
             mainAxisSpacing: 16.0,
-            childAspectRatio:
-                0.8, // Adjust ratio to fit images and text properly
+            childAspectRatio: 0.8,
           ),
           itemCount: cards.length,
           itemBuilder: (context, index) {
@@ -38,7 +63,6 @@ class CardsScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Card image
                   Expanded(
                     child: Image.asset(
                       card['image'],
@@ -46,7 +70,6 @@ class CardsScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 8.0),
-                  // Card name
                   Text(
                     card['name'],
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -57,7 +80,6 @@ class CardsScreen extends StatelessWidget {
           },
         ),
       ),
-      // Floating Action Button to add a new card (UI placeholder)
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Add card functionality (UI placeholder)
