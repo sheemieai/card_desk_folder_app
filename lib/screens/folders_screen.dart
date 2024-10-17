@@ -22,27 +22,18 @@ class _FoldersScreenState extends State<FoldersScreen> {
   }
 
   Future<void> fetchFolderCardCounts() async {
-    final folderCounts = await DatabaseHelper.instance.getLastXTimestampsPerFolder(3);
+    final folderCounts = await DatabaseHelper.instance.getCardCountsPerFolder();
+    final folderUris = await DatabaseHelper.instance.getLatestCardUrisPerFolder();
 
     setState(() {
       for (var folder in folders) {
         final folderName = folder['name'];
         folder['cardCount'] = folderCounts[folderName] ?? 0;
+        folder['image'] = folderUris[folderName] ?? 'lib/img/blank.png';
       }
     });
-  }
 
-  Future<void> verifyFolderTableContents() async {
-    final db = await DatabaseHelper.instance.database;
-    final result = await db.query("folder_table");
-    print('Contents of folder_table: $result');
-  }
-
-  Future<void> addFakeCards() async {
-    await DatabaseHelper.instance.clearTables();
-    await DatabaseHelper.instance.addFakeCardsToCardTable();
-    await verifyFolderTableContents();
-    await fetchFolderCardCounts();
+    print('Updated folder counts and images: $folders');
   }
 
   @override
@@ -50,60 +41,65 @@ class _FoldersScreenState extends State<FoldersScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Card Folders'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: addFakeCards,
-          ),
-        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 16.0,
-            mainAxisSpacing: 16.0,
-            childAspectRatio: 0.8,
-          ),
-          itemCount: folders.length,
-          itemBuilder: (context, index) {
-            var folder = folders[index];
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CardsScreen(folderName: folder['name']),
-                  ),
-                );
-              },
-              child: Card(
-                elevation: 4.0,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Image.asset(
-                        folder['image'],
-                        fit: BoxFit.contain,
+      body: Column(
+        children: [
+          // GridView displaying card folders
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
+                  childAspectRatio: 0.8,
+                ),
+                itemCount: folders.length,
+                itemBuilder: (context, index) {
+                  var folder = folders[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CardsScreen(
+                            folderName: folder['name'],
+                            updateFoldersCallback: fetchFolderCardCounts,
+                            folderIndex: index,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Card(
+                      elevation: 4.0,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Image.asset(
+                              folder['image'],
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          const SizedBox(height: 8.0),
+                          Text(
+                            folder['name'],
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '${folder['cardCount']} cards',
+                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8.0),
-                    Text(
-                      folder['name'],
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '${folder['cardCount']} cards',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
-            );
-          },
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
